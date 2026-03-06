@@ -2,6 +2,7 @@ from flask import Flask, jsonify, send_from_directory, request
 from flask_cors import CORS
 import db.dbconn as dbconn
 from routes.student_routes import student_bp
+from routes.course_routes import course_bp
 from routes.auth import auth_bp, init_jwt
 import os
 
@@ -12,6 +13,7 @@ init_jwt(app)
 
 app.register_blueprint(student_bp)
 app.register_blueprint(auth_bp)
+app.register_blueprint(course_bp)
 
 @app.route("/", defaults={'path': ''})
 @app.route("/<path:path>")
