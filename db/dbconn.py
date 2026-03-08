@@ -1,15 +1,18 @@
-import sqlite3;
+import sqlite3
+
 
 def get_db_connection():
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect("database.db")
     conn.execute("PRAGMA foreign_keys = ON;")
     conn.row_factory = sqlite3.Row
     return conn
 
+
 def init_db():
     conn = get_db_connection()
     with conn:
-        conn.executescript('''
+        conn.executescript(
+            """
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 first_name TEXT NOT NULL,
@@ -41,19 +44,23 @@ def init_db():
                 FOREIGN KEY (course_id) REFERENCES courses (id) ON DELETE CASCADE,
                 UNIQUE(student_id, course_id)
             );
-        ''')
+        """
+        )
     conn.commit()
     conn.close()
+
 
 def reset_db():
     conn = get_db_connection()
     with conn:
-        conn.executescript('''
+        conn.executescript(
+            """
             DROP TABLE IF EXISTS enrollments;
             DROP TABLE IF EXISTS courses;
             DROP TABLE IF EXISTS students;
             DROP TABLE IF EXISTS users;
-        ''')
+        """
+        )
     conn.commit()
     conn.close()
     init_db()

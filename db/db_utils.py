@@ -1,8 +1,8 @@
 import sqlite3
 from contextlib import contextmanager
-import os
 
-DATABASE = 'database.db'
+DATABASE = "database.db"
+
 
 @contextmanager
 def get_db():
@@ -13,6 +13,7 @@ def get_db():
         yield conn
     finally:
         conn.close()
+
 
 def execute_query(query, params=(), commit=False):
     with get_db() as conn:

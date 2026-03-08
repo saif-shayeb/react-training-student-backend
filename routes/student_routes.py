@@ -6,6 +6,7 @@ from services.user_service import create_user_with_student
 
 student_bp = Blueprint("students", __name__, url_prefix="/students")
 
+
 @student_bp.route("/", methods=["GET"])
 @jwt_required()
 def get_students():
@@ -13,17 +14,23 @@ def get_students():
     user_id = get_jwt_identity()
     with get_db() as conn:
         if claims.get("type") == "admin":
-            rows = conn.execute("""
+            rows = conn.execute(
+                """
                 SELECT users.*, students.gpa FROM students
                 JOIN users ON students.user_id = users.id
-            """).fetchall()
+            """
+            ).fetchall()
         else:
-            rows = conn.execute("""
+            rows = conn.execute(
+                """
                 SELECT users.*, students.gpa FROM students
                 JOIN users ON students.user_id = users.id
                 WHERE users.id = ?
-            """, (user_id,)).fetchall()
+            """,
+                (user_id,),
+            ).fetchall()
     return jsonify([dict(row) for row in rows])
+
 
 @student_bp.route("/", methods=["POST"])
 def add_student():
@@ -34,6 +41,7 @@ def add_student():
     except Exception as e:
         return error_response(str(e), 500)
 
+
 @student_bp.route("/<int:id>", methods=["DELETE"])
 def delete_student(id):
     try:
@@ -42,9 +50,12 @@ def delete_student(id):
             res = cursor.execute("DELETE FROM users WHERE id = ?", (id,))
             conn.commit()
             count = res.rowcount
-        return success_response("Student deleted successfully" if count > 0 else "Student not found")
+        return success_response(
+            "Student deleted successfully" if count > 0 else "Student not found"
+        )
     except Exception as e:
         return error_response(str(e), 500)
+
 
 @student_bp.route("/<int:id>", methods=["PUT"])
 def update_student(id):
@@ -52,22 +63,27 @@ def update_student(id):
     try:
         with get_db() as conn:
             cursor = conn.cursor()
-            res = cursor.execute("""
+            res = cursor.execute(
+                """
                 UPDATE users 
                 SET first_name=?, last_name=?, email=?, password=?, gender=?, birth_date=?
                 WHERE id=?
-            """, (
-                data.get("first_name"), 
-                data.get("last_name"), 
-                data.get("email"), 
-                data.get("password"),
-                data.get("gender"),
-                data.get("birth_date"),
-                id
-            ))
+            """,
+                (
+                    data.get("first_name"),
+                    data.get("last_name"),
+                    data.get("email"),
+                    data.get("password"),
+                    data.get("gender"),
+                    data.get("birth_date"),
+                    id,
+                ),
+            )
             if res.rowcount == 0:
                 return error_response("Student not found", 404)
-            cursor.execute("UPDATE students SET gpa=? WHERE user_id=?", (data.get("gpa"), id))
+            cursor.execute(
+                "UPDATE students SET gpa=? WHERE user_id=?", (data.get("gpa"), id)
+            )
             conn.commit()
         return success_response("Student updated successfully")
     except Exception as e:
